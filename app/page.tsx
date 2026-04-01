@@ -367,8 +367,19 @@ export default function Home() {
       setVerseIndex((prev) => (prev + 1) % bibleData.length);
     }
   };
-  const [templates, setTemplates] = useState(todayTemplates);
   const [poolIdx, setPoolIdx] = useState(0);
+  const [templates, setTemplates] = useState(todayTemplates);
+
+  useEffect(() => {
+    const random = Math.floor(Math.random() * TEMPLATE_POOLS[0].seeds.length);
+    setPoolIdx(random);
+    setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
+      id: i + 1,
+      label: pool.label,
+      url: getPoolUrl(pool, random),
+      overlayAlpha: pool.overlayAlpha,
+    })));
+  }, []);
 
   const handleChangeTemplates = () => {
     const next = (poolIdx + 1) % TEMPLATE_POOLS[0].seeds.length;
