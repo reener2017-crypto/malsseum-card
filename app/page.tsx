@@ -58,44 +58,103 @@ const FONTS = [
 ];
 
 // 성경 분위기 테마별 이미지 풀 (loremflickr 키워드 기반)
-const TEMPLATE_POOLS = [
-  {
-    label: "기독교",
-    overlayAlpha: 0.52,
-    query: "church,cross,worship,cathedral",
-    locks: Array.from({length: 50}, (_, i) => i * 4 + 1),
-  },
-  {
-    label: "말씀",
-    overlayAlpha: 0.45,
-    query: "bible,candle,prayer,light",
-    locks: Array.from({length: 50}, (_, i) => i * 4 + 2),
-  },
-  {
-    label: "자연",
-    overlayAlpha: 0.42,
-    query: "nature,sky,mountain,forest",
-    locks: Array.from({length: 50}, (_, i) => i * 4 + 3),
-  },
-  {
-    label: "감성",
-    overlayAlpha: 0.38,
-    query: "sunset,flower,ocean,dawn",
-    locks: Array.from({length: 50}, (_, i) => i * 4 + 4),
-  },
+const BG_IMAGES = [
+  "/backgrounds/a-c-NqXqLPhdbvU-unsplash.jpg",
+  "/backgrounds/aaron-burden-09AhDCedXF8-unsplash.jpg",
+  "/backgrounds/aaron-burden-9npCsdGQ4qU-unsplash.jpg",
+  "/backgrounds/aaron-burden-BxmJUeJrlp4-unsplash.jpg",
+  "/backgrounds/adrien-olichon-VzRKG0piEp8-unsplash.jpg",
+  "/backgrounds/alex-perez-wEgR12N01Tk-unsplash.jpg",
+  "/backgrounds/alexander-grey-NkQD-RHhbvY-unsplash.jpg",
+  "/backgrounds/andrea-ferrario-3WgPZbsDSkE-unsplash.jpg",
+  "/backgrounds/ann-savchenko-H0h_89iFsWs-unsplash.jpg",
+  "/backgrounds/annie-spratt-reU05EIlNCQ-unsplash.jpg",
+  "/backgrounds/annie-spratt-yI3weKNBRTc-unsplash.jpg",
+  "/backgrounds/annie-spratt-zA7I5BtFbvw-unsplash.jpg",
+  "/backgrounds/anurag-challa-wA-hpHErU_I-unsplash.jpg",
+  "/backgrounds/augustine-wong-T0BYurbDK_M-unsplash.jpg",
+  "/backgrounds/augustine-wong-oebTM5wHTfw-unsplash.jpg",
+  "/backgrounds/bing-hui-yau-Y2VbSbX49R0-unsplash.jpg",
+  "/backgrounds/boris-baldinger-eUFfY6cwjSU-unsplash.jpg",
+  "/backgrounds/casey-horner-4rDCa5hBlCs-unsplash.jpg",
+  "/backgrounds/casey-horner-RmoWqDCqN2E-unsplash.jpg",
+  "/backgrounds/clay-banks-8SXaMMWCTGc-unsplash.jpg",
+  "/backgrounds/clement-m-igX2deuD9lc-unsplash.jpg",
+  "/backgrounds/cole-keister-xMMh-VFGL9M-unsplash.jpg",
+  "/backgrounds/damiano-baschiera-d4feocYfzAM-unsplash.jpg",
+  "/backgrounds/dave-hoefler-1Zgn-Xg1xGg-unsplash.jpg",
+  "/backgrounds/dave-hoefler-D-FI-GHZeVc-unsplash.jpg",
+  "/backgrounds/dave-hoefler-lsoogGC_5dg-unsplash.jpg",
+  "/backgrounds/david-kovalenko-rkkr6-2I4sg-unsplash.jpg",
+  "/backgrounds/dev-benjamin-voIzq8LEdlo-unsplash.jpg",
+  "/backgrounds/diego-ph-5LOhydOtTKU-unsplash.jpg",
+  "/backgrounds/elif-koyuturk-uNliRqlmBdg-unsplash.jpg",
+  "/backgrounds/elyssa-MF16lGb95WY-unsplash.jpg",
+  "/backgrounds/eric-terrade-eQs-KUxW-uU-unsplash.jpg",
+  "/backgrounds/fabrice-villard-Jrl_UQcZqOc-unsplash.jpg",
+  "/backgrounds/filip-baotic-6s3J4RVGOl0-unsplash.jpg",
+  "/backgrounds/filip-zrnzevic-_EMkxLdko9k-unsplash.jpg",
+  "/backgrounds/frantisek-g-XXuVXLy5gHU-unsplash.jpg",
+  "/backgrounds/goutham-krishna-h5wvMCdOV3w-unsplash.jpg",
+  "/backgrounds/hans-iEKg9h5_hd4-unsplash.jpg",
+  "/backgrounds/ibrahim-rifath-NJ7CaVfWYaw-unsplash.jpg",
+  "/backgrounds/ivana-cajina-DuiPYwz3CBA-unsplash.jpg",
+  "/backgrounds/jei-lee-5WFfI63aEBo-unsplash.jpg",
+  "/backgrounds/jessica-mangano-c7YYeMemTzw-unsplash.jpg",
+  "/backgrounds/johny-goerend-Oz2ZQ2j8We8-unsplash.jpg",
+  "/backgrounds/jon-r8AFUpRp0J0-unsplash.jpg",
+  "/backgrounds/kazuend-2KXEb_8G5vo-unsplash.jpg",
+  "/backgrounds/kelis-HH8Sk2LfeCk-unsplash.jpg",
+  "/backgrounds/linus-nylund-JP23z_-dA74-unsplash.jpg",
+  "/backgrounds/linus-nylund-UCIZh0-OYPw-unsplash.jpg",
+  "/backgrounds/luciano-paris-5L4dJCLTixA-unsplash.jpg",
+  "/backgrounds/mahdi-soheili-3wxiKqC9KSA-unsplash.jpg",
+  "/backgrounds/martin-de-arriba-Mi6iic32OoA-unsplash.jpg",
+  "/backgrounds/massimiliano-morosinotto-pv7hY0HYPC4-unsplash.jpg",
+  "/backgrounds/max-saeling-ef0sXQtnCYU-unsplash.jpg",
+  "/backgrounds/mona-eendra-vC8wj_Kphak-unsplash.jpg",
+  "/backgrounds/mymind-XUlsF9LYeVk-unsplash.jpg",
+  "/backgrounds/nareeta-martin-pEWtWnDgGLs-unsplash.jpg",
+  "/backgrounds/nathan-dumlao-ciO5L8pin8A-unsplash.jpg",
+  "/backgrounds/neom-i60yUhfWeYI-unsplash.jpg",
+  "/backgrounds/nick-nice-gPm8h3DS1s4-unsplash.jpg",
+  "/backgrounds/patrick-hendry-yQIMVSwePtk-unsplash.jpg",
+  "/backgrounds/pawel-czerwinski-ISgDx2aOAB8-unsplash.jpg",
+  "/backgrounds/pawel-czerwinski-Ih3-ww0fBHM-unsplash.jpg",
+  "/backgrounds/pawel-czerwinski-LS0CWcXo1dw-unsplash.jpg",
+  "/backgrounds/pawel-czerwinski-YsFk8hGFhrw-unsplash.jpg",
+  "/backgrounds/pisit-heng-ci1F55HaVWQ-unsplash.jpg",
+  "/backgrounds/quentin-zwzeorQPepo-unsplash.jpg",
+  "/backgrounds/resul-mentes-DbwYNr8RPbg-unsplash.jpg",
+  "/backgrounds/rodion-kutsaiev-049M_crau5k-unsplash.jpg",
+  "/backgrounds/romello-williams-P8VMwYFY-Es-unsplash.jpg",
+  "/backgrounds/sanjoy-saha-9Q8flQBapPU-unsplash.jpg",
+  "/backgrounds/sixteen-miles-out-Uc6kiKdW2_g-unsplash.jpg",
+  "/backgrounds/sj-objio-XFWiZTa2Ub0-unsplash.jpg",
+  "/backgrounds/stacey-koenitz-kSY5T6js2KE-unsplash.jpg",
+  "/backgrounds/taylor-van-riper-yQorCngxzwI-unsplash.jpg",
+  "/backgrounds/teemu-paananen-OoE4xAnBhKo-unsplash.jpg",
+  "/backgrounds/thom-milkovic-qPPWNeFVLFQ-unsplash.jpg",
+  "/backgrounds/thomas-kelley-JoH60FhTp50-unsplash.jpg",
+  "/backgrounds/valeria-reverdo-dwy2meBFqW8-unsplash.jpg",
+  "/backgrounds/vanilla-panda-OdBFUurPHjo-unsplash.jpg",
+  "/backgrounds/wolf-zimmermann-6sf5rf8QYFE-unsplash.jpg",
 ];
 
-function getPoolUrl(pool: typeof TEMPLATE_POOLS[0], idx: number) {
-  const lock = pool.locks[idx % pool.locks.length];
-  return `https://loremflickr.com/1080/1920/${pool.query}?lock=${lock}`;
+const OVERLAY_ALPHAS = [0.45, 0.42, 0.48, 0.40];
+
+function pick4Images(excludeUrls: string[] = []): string[] {
+  const pool = BG_IMAGES.filter(img => !excludeUrls.includes(img));
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 4);
 }
 
 function getTodayTemplates() {
-  return TEMPLATE_POOLS.map((pool, i) => ({
+  return pick4Images().map((url, i) => ({
     id: i + 1,
-    label: pool.label,
-    url: getPoolUrl(pool, 0),
-    overlayAlpha: pool.overlayAlpha,
+    label: "",
+    url,
+    overlayAlpha: OVERLAY_ALPHAS[i],
   }));
 }
 
@@ -369,32 +428,25 @@ export default function Home() {
       setVerseIndex((prev) => (prev + 1) % bibleData.length);
     }
   };
-  const [poolIdx, setPoolIdx] = useState(0);
   const [templates, setTemplates] = useState(todayTemplates);
 
   useEffect(() => {
-    const random = Math.floor(Math.random() * TEMPLATE_POOLS[0].locks.length);
-    setPoolIdx(random);
-    setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
+    setTemplates(pick4Images().map((url, i) => ({
       id: i + 1,
-      label: pool.label,
-      url: getPoolUrl(pool, random),
-      overlayAlpha: pool.overlayAlpha,
+      label: "",
+      url,
+      overlayAlpha: OVERLAY_ALPHAS[i],
     })));
   }, []);
 
   const handleChangeTemplates = () => {
-    let next = poolIdx;
-    while (next === poolIdx) {
-      next = Math.floor(Math.random() * TEMPLATE_POOLS[0].locks.length);
-    }
-    setPoolIdx(next);
+    const currentUrls = templates.map(t => t.url);
     setSelectedTemplateId(null);
-    setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
+    setTemplates(pick4Images(currentUrls).map((url, i) => ({
       id: i + 1,
-      label: pool.label,
-      url: getPoolUrl(pool, next),
-      overlayAlpha: pool.overlayAlpha,
+      label: "",
+      url,
+      overlayAlpha: OVERLAY_ALPHAS[i],
     })));
   };
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
