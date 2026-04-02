@@ -493,8 +493,10 @@ export default function Home() {
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
     canvas.height = 1920;
-    // 다운로드 캔버스는 프록시 URL 사용 (canvas.toDataURL CORS 필요)
-    const downloadBgUrl = `/api/proxy?url=${encodeURIComponent(activeTemplate.url)}`;
+    // 로컬 이미지는 직접, 외부 URL은 프록시 사용
+    const downloadBgUrl = activeTemplate.url.startsWith("/")
+      ? activeTemplate.url
+      : `/api/proxy?url=${encodeURIComponent(activeTemplate.url)}`;
     await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY, logoScale);
     const link = document.createElement("a");
     link.download = `말씀카드_${dateLabel}.png`;
