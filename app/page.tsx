@@ -198,6 +198,7 @@ async function drawCard(
   textColor = "#FFFFFF",
   fontScale = 1.0,
   textY = 50,
+  logoScale = 1.0,
 ) {
   const W = canvas.width;
   const H = canvas.height;
@@ -272,8 +273,8 @@ async function drawCard(
     await new Promise<void>((resolve) => {
       const img = new Image();
       img.onload = () => {
-        const maxW = W * 0.28;
-        const maxH = H * 0.065;
+        const maxW = W * 0.28 * logoScale;
+        const maxH = H * 0.065 * logoScale;
         const scale = Math.min(maxW / img.width, maxH / img.height);
         const lw = img.width * scale;
         const lh = img.height * scale;
@@ -293,6 +294,8 @@ function CardPreview({
   fontFamily,
   fontScale,
   churchName,
+  logoUrl,
+  logoScale,
   textColor,
   textY,
   selected,
@@ -304,6 +307,7 @@ function CardPreview({
   fontScale: number;
   churchName: string;
   logoUrl: string | null;
+  logoScale: number;
   textColor: string;
   textY: number;
   selected: boolean;
@@ -344,15 +348,15 @@ function CardPreview({
           {verse.chapter > 0 ? `${verse.book} ${verse.chapter}:${verse.verse}` : verse.book}
         </p>
       </div>
-      {/* 교회 이름 */}
-      {churchName && (
-        <p
-          className="absolute bottom-[6%] w-full text-center"
-          style={{ fontFamily, color: textColor + "CC", fontSize: "clamp(8px, 3cqw, 13px)" }}
-        >
-          {churchName}
-        </p>
-      )}
+      {/* 교회 로고 + 이름 */}
+      <div className="absolute bottom-[4%] w-full flex flex-col items-center gap-[1cqw]">
+        {logoUrl && (
+          <img src={logoUrl} alt="로고" style={{ height: `clamp(10px, ${6 * logoScale}cqw, 40px)`, objectFit: "contain" }} />
+        )}
+        {churchName && (
+          <p style={{ fontFamily, color: textColor + "CC", fontSize: "clamp(8px, 3cqw, 13px)" }}>{churchName}</p>
+        )}
+      </div>
       {selected && (
         <div className="absolute top-2 right-2 bg-indigo-500 rounded-full w-6 h-6 flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -455,7 +459,8 @@ export default function Home() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [selectedFontId, setSelectedFontId] = useState("noto-serif");
   const [fontScale, setFontScale] = useState(1.0);
-  const [textY, setTextY] = useState(50); // 0.7 ~ 1.4
+  const [textY, setTextY] = useState(50);
+  const [logoScale, setLogoScale] = useState(1.0); // 0.7 ~ 1.4
   const [selectedColorId, setSelectedColorId] = useState("white");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [churchName, setChurchName] = useState("");
@@ -490,7 +495,7 @@ export default function Home() {
     canvas.height = 1920;
     // 다운로드 캔버스는 프록시 URL 사용 (canvas.toDataURL CORS 필요)
     const downloadBgUrl = `/api/proxy?url=${encodeURIComponent(activeTemplate.url)}`;
-    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY);
+    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY, logoScale);
     const link = document.createElement("a");
     link.download = `말씀카드_${dateLabel}.png`;
     link.href = canvas.toDataURL("image/png");
@@ -598,6 +603,24 @@ export default function Home() {
             )}
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
           </div>
+          {logoUrl && (
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-xs text-gray-400">작게</span>
+              <input
+                type="range"
+                min={0.3}
+                max={2.0}
+                step={0.1}
+                value={logoScale}
+                onChange={(e) => setLogoScale(Number(e.target.value))}
+                className="flex-1 accent-indigo-500"
+              />
+              <span className="text-xs text-gray-400">크게</span>
+              {logoScale !== 1.0 && (
+                <button onClick={() => setLogoScale(1.0)} className="text-xs text-gray-400 hover:text-indigo-400">초기화</button>
+              )}
+            </div>
+          )}
           <input
             type="text"
             value={churchName}
@@ -630,6 +653,7 @@ export default function Home() {
                 logoUrl={logoUrl}
                 textColor={activeColor.hex}
                 textY={textY}
+                logoScale={logoScale}
                 selected={selectedTemplateId === t.id}
                 onClick={() => setSelectedTemplateId(t.id)}
               />
