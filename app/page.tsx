@@ -197,6 +197,7 @@ async function drawCard(
   logoUrl: string | null,
   textColor = "#FFFFFF",
   fontScale = 1.0,
+  textY = 50,
 ) {
   const W = canvas.width;
   const H = canvas.height;
@@ -244,7 +245,7 @@ async function drawCard(
   ctx.font = `bold ${fontSize}px ${fontFamily}`;
   const lineHeight = fontSize * 1.6;
   const totalH = lines.length * lineHeight;
-  const startY = H / 2 - totalH / 2 + lineHeight / 2;
+  const startY = H * (textY / 100) - totalH / 2 + lineHeight / 2;
   lines.forEach((line, i) => {
     ctx.fillText(line, W / 2, startY + i * lineHeight);
   });
@@ -293,6 +294,7 @@ function CardPreview({
   fontScale,
   churchName,
   textColor,
+  textY,
   selected,
   onClick,
 }: {
@@ -303,6 +305,7 @@ function CardPreview({
   churchName: string;
   logoUrl: string | null;
   textColor: string;
+  textY: number;
   selected: boolean;
   onClick: () => void;
 }) {
@@ -327,7 +330,7 @@ function CardPreview({
         style={{ backgroundColor: `rgba(0,0,0,${template.overlayAlpha})` }}
       />
       {/* 말씀 텍스트 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-[8%] text-center gap-2">
+      <div className="absolute inset-x-0 px-[8%] text-center" style={{ top: `${textY}%`, transform: "translateY(-50%)" }}>
         <p
           className="font-bold leading-relaxed"
           style={{ fontFamily, color: textColor, fontSize: `clamp(8px, ${baseSize}cqw, 22px)`, whiteSpace: "pre-wrap" }}
@@ -451,7 +454,8 @@ export default function Home() {
   };
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [selectedFontId, setSelectedFontId] = useState("noto-serif");
-  const [fontScale, setFontScale] = useState(1.0); // 0.7 ~ 1.4
+  const [fontScale, setFontScale] = useState(1.0);
+  const [textY, setTextY] = useState(50); // 0.7 ~ 1.4
   const [selectedColorId, setSelectedColorId] = useState("white");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [churchName, setChurchName] = useState("");
@@ -486,7 +490,7 @@ export default function Home() {
     canvas.height = 1920;
     // 다운로드 캔버스는 프록시 URL 사용 (canvas.toDataURL CORS 필요)
     const downloadBgUrl = `/api/proxy?url=${encodeURIComponent(activeTemplate.url)}`;
-    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale);
+    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY);
     const link = document.createElement("a");
     link.download = `말씀카드_${dateLabel}.png`;
     link.href = canvas.toDataURL("image/png");
@@ -625,12 +629,31 @@ export default function Home() {
                 churchName={churchName}
                 logoUrl={logoUrl}
                 textColor={activeColor.hex}
+                textY={textY}
                 selected={selectedTemplateId === t.id}
                 onClick={() => setSelectedTemplateId(t.id)}
               />
               <p className="text-center text-xs text-indigo-400 font-medium">{t.label}</p>
             </div>
           ))}
+        </div>
+
+        {/* 말씀 위치 */}
+        <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">말씀 위치</p>
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-xs text-gray-400">상단</span>
+          <input
+            type="range"
+            min={15}
+            max={85}
+            value={textY}
+            onChange={(e) => setTextY(Number(e.target.value))}
+            className="flex-1 accent-indigo-500"
+          />
+          <span className="text-xs text-gray-400">하단</span>
+          {textY !== 50 && (
+            <button onClick={() => setTextY(50)} className="text-xs text-gray-400 hover:text-indigo-400">초기화</button>
+          )}
         </div>
 
         {/* 글씨 크기 */}
