@@ -347,8 +347,8 @@ function CardPreview({
   selected: boolean;
   onClick: () => void;
 }) {
-  const baseSize = 4.5 * fontScale;
-  const refSize = 3 * fontScale;
+  const baseSize = 6.2 * fontScale;
+  const refSize = 3.7 * fontScale;
   return (
     <button
       onClick={onClick}
