@@ -199,6 +199,7 @@ async function drawCard(
   fontScale = 1.0,
   textY = 50,
   logoScale = 1.0,
+  textAlign: "center" | "left" | "right" | "justify" = "center",
 ) {
   const W = canvas.width;
   const H = canvas.height;
@@ -225,7 +226,6 @@ async function drawCard(
   ctx.fillStyle = `rgba(0,0,0,${overlayAlpha})`;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   // 구절 - 줄바꿈은 기준 폰트로 측정, 렌더링은 선택 폰트로
@@ -247,18 +247,50 @@ async function drawCard(
   const lineHeight = fontSize * 1.6;
   const totalH = lines.length * lineHeight;
   const startY = H * (textY / 100) - totalH / 2 + lineHeight / 2;
-  lines.forEach((line, i) => {
-    ctx.fillText(line, W / 2, startY + i * lineHeight);
-  });
+  const paddingX = W * 0.075;
+  const textX = textAlign === "left" ? paddingX : textAlign === "right" ? W - paddingX : W / 2;
+  ctx.textAlign = textAlign === "justify" ? "center" : textAlign;
+  if (textAlign === "justify") {
+    lines.forEach((line, i) => {
+      const isLast = i === lines.length - 1;
+      if (isLast || lines.length === 1) {
+        ctx.textAlign = "center";
+        ctx.fillText(line, W / 2, startY + i * lineHeight);
+      } else {
+        ctx.textAlign = "left";
+        const words = line.split(" ");
+        if (words.length <= 1) {
+          ctx.textAlign = "center";
+          ctx.fillText(line, W / 2, startY + i * lineHeight);
+        } else {
+          const totalWidth = W - paddingX * 2;
+          const wordWidths = words.map(w => ctx.measureText(w).width);
+          const totalWordWidth = wordWidths.reduce((a, b) => a + b, 0);
+          const gap = (totalWidth - totalWordWidth) / (words.length - 1);
+          let x = paddingX;
+          words.forEach((word, wi) => {
+            ctx.fillText(word, x, startY + i * lineHeight);
+            x += wordWidths[wi] + gap;
+          });
+        }
+      }
+    });
+  } else {
+    lines.forEach((line, i) => {
+      ctx.fillText(line, textX, startY + i * lineHeight);
+    });
+  }
 
   // 출처
   const refFontSize = Math.round(W * 0.037);
   ctx.font = `${refFontSize}px ${fontFamily}`;
   ctx.fillStyle = textColor + "AA";
+  ctx.textAlign = textAlign === "justify" ? "center" : textAlign;
+  const refX = textAlign === "left" ? paddingX : textAlign === "right" ? W - paddingX : W / 2;
   const refLabel = verse.chapter > 0
     ? `${verse.book} ${verse.chapter}:${verse.verse}`
     : verse.book;
-  if (refLabel) ctx.fillText(refLabel, W / 2, startY + totalH + refFontSize * 1.5);
+  if (refLabel) ctx.fillText(refLabel, refX, startY + totalH + refFontSize * 1.5);
 
   // 교회 이름 + 로고
   let bottomY = H - H * 0.06;
@@ -298,6 +330,7 @@ function CardPreview({
   logoScale,
   textColor,
   textY,
+  textAlign,
   selected,
   onClick,
 }: {
@@ -310,6 +343,7 @@ function CardPreview({
   logoScale: number;
   textColor: string;
   textY: number;
+  textAlign: "center" | "left" | "right" | "justify";
   selected: boolean;
   onClick: () => void;
 }) {
@@ -334,7 +368,7 @@ function CardPreview({
         style={{ backgroundColor: `rgba(0,0,0,${template.overlayAlpha})` }}
       />
       {/* 말씀 텍스트 */}
-      <div className="absolute inset-x-0 px-[8%] text-center" style={{ top: `${textY}%`, transform: "translateY(-50%)" }}>
+      <div className="absolute inset-x-0 px-[8%]" style={{ top: `${textY}%`, transform: "translateY(-50%)", textAlign }}>
         <p
           className="font-bold leading-relaxed"
           style={{ fontFamily, color: textColor, fontSize: `clamp(8px, ${baseSize}cqw, 22px)`, whiteSpace: "pre-wrap" }}
@@ -462,6 +496,7 @@ export default function Home() {
   const [selectedFontId, setSelectedFontId] = useState("noto-serif");
   const [fontScale, setFontScale] = useState(1.0);
   const [textY, setTextY] = useState(50);
+  const [textAlign, setTextAlign] = useState<"center" | "left" | "right" | "justify">("center");
   const [logoScale, setLogoScale] = useState(1.0); // 0.7 ~ 1.4
   const [selectedColorId, setSelectedColorId] = useState("white");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -499,7 +534,7 @@ export default function Home() {
     const downloadBgUrl = activeTemplate.url.startsWith("/")
       ? activeTemplate.url
       : `/api/proxy?url=${encodeURIComponent(activeTemplate.url)}`;
-    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY, logoScale);
+    await drawCard(canvas, downloadBgUrl, activeTemplate.overlayAlpha, activeVerse, activeFont.family, churchName, logoUrl, activeColor.hex, fontScale, textY, logoScale, textAlign);
     const link = document.createElement("a");
     link.download = `말씀카드_${dateLabel}.png`;
     link.href = canvas.toDataURL("image/png");
@@ -657,6 +692,7 @@ export default function Home() {
                 logoUrl={logoUrl}
                 textColor={activeColor.hex}
                 textY={textY}
+                textAlign={textAlign}
                 logoScale={logoScale}
                 selected={selectedTemplateId === t.id}
                 onClick={() => setSelectedTemplateId(t.id)}
@@ -682,6 +718,29 @@ export default function Home() {
           {textY !== 50 && (
             <button onClick={() => setTextY(50)} className="text-xs text-gray-400 hover:text-indigo-400">초기화</button>
           )}
+        </div>
+
+        {/* 텍스트 정렬 */}
+        <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">텍스트 정렬</p>
+        <div className="flex gap-2 mb-6">
+          {([
+            { id: "left", label: "좌측" },
+            { id: "center", label: "가운데" },
+            { id: "right", label: "우측" },
+            { id: "justify", label: "양쪽" },
+          ] as const).map((a) => (
+            <button
+              key={a.id}
+              onClick={() => setTextAlign(a.id)}
+              className={`flex-1 py-2 rounded-xl border text-sm font-medium transition-all ${
+                textAlign === a.id
+                  ? "bg-indigo-600 border-indigo-600 text-white shadow-md"
+                  : "bg-white border-indigo-200 text-gray-600 hover:bg-indigo-50"
+              }`}
+            >
+              {a.label}
+            </button>
+          ))}
         </div>
 
         {/* 글씨 크기 */}
