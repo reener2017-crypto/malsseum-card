@@ -383,7 +383,7 @@ function CardPreview({
         </p>
       </div>
       {/* 교회 로고 + 이름 */}
-      <div className="absolute bottom-[4%] w-full flex flex-col items-center gap-[1cqw]">
+      <div className="absolute bottom-[4%] w-full flex flex-col items-center gap-[1cqw]" style={{ textAlign: "center" }}>
         {logoUrl && (
           <img src={logoUrl} alt="로고" style={{ height: `clamp(10px, ${6 * logoScale}cqw, 40px)`, objectFit: "contain" }} />
         )}
