@@ -199,7 +199,7 @@ async function drawCard(
   fontScale = 1.0,
   textY = 50,
   logoScale = 1.0,
-  textAlign: "center" | "left" | "right" | "justify" = "center",
+  textAlign: "center" | "left" | "right" = "center",
 ) {
   const W = canvas.width;
   const H = canvas.height;
@@ -249,44 +249,17 @@ async function drawCard(
   const startY = H * (textY / 100) - totalH / 2 + lineHeight / 2;
   const paddingX = W * 0.075;
   const textX = textAlign === "left" ? paddingX : textAlign === "right" ? W - paddingX : W / 2;
-  ctx.textAlign = textAlign === "justify" ? "center" : textAlign;
-  if (textAlign === "justify") {
-    lines.forEach((line, i) => {
-      const isLast = i === lines.length - 1;
-      if (isLast || lines.length === 1) {
-        ctx.textAlign = "center";
-        ctx.fillText(line, W / 2, startY + i * lineHeight);
-      } else {
-        ctx.textAlign = "left";
-        const words = line.split(" ");
-        if (words.length <= 1) {
-          ctx.textAlign = "center";
-          ctx.fillText(line, W / 2, startY + i * lineHeight);
-        } else {
-          const totalWidth = W - paddingX * 2;
-          const wordWidths = words.map(w => ctx.measureText(w).width);
-          const totalWordWidth = wordWidths.reduce((a, b) => a + b, 0);
-          const gap = (totalWidth - totalWordWidth) / (words.length - 1);
-          let x = paddingX;
-          words.forEach((word, wi) => {
-            ctx.fillText(word, x, startY + i * lineHeight);
-            x += wordWidths[wi] + gap;
-          });
-        }
-      }
-    });
-  } else {
-    lines.forEach((line, i) => {
-      ctx.fillText(line, textX, startY + i * lineHeight);
-    });
-  }
+  ctx.textAlign = textAlign;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, textX, startY + i * lineHeight);
+  });
 
   // 출처
   const refFontSize = Math.round(W * 0.037);
   ctx.font = `${refFontSize}px ${fontFamily}`;
   ctx.fillStyle = textColor + "AA";
-  ctx.textAlign = textAlign === "justify" ? "center" : textAlign;
-  const refX = textAlign === "left" ? paddingX : textAlign === "right" ? W - paddingX : W / 2;
+  ctx.textAlign = textAlign;
+  const refX = textX;
   const refLabel = verse.chapter > 0
     ? `${verse.book} ${verse.chapter}:${verse.verse}`
     : verse.book;
@@ -343,7 +316,7 @@ function CardPreview({
   logoScale: number;
   textColor: string;
   textY: number;
-  textAlign: "center" | "left" | "right" | "justify";
+  textAlign: "center" | "left" | "right";
   selected: boolean;
   onClick: () => void;
 }) {
@@ -383,7 +356,7 @@ function CardPreview({
         </p>
       </div>
       {/* 교회 로고 + 이름 */}
-      <div className="absolute bottom-[4%] w-full flex flex-col items-center gap-[1cqw]" style={{ textAlign: "center" }}>
+      <div className="absolute bottom-[4%] w-full flex flex-col items-center gap-[1cqw]" style={{ textAlign: "center", alignItems: "center" }}>
         {logoUrl && (
           <img src={logoUrl} alt="로고" style={{ height: `clamp(10px, ${6 * logoScale}cqw, 40px)`, objectFit: "contain" }} />
         )}
@@ -496,7 +469,7 @@ export default function Home() {
   const [selectedFontId, setSelectedFontId] = useState("noto-serif");
   const [fontScale, setFontScale] = useState(1.0);
   const [textY, setTextY] = useState(50);
-  const [textAlign, setTextAlign] = useState<"center" | "left" | "right" | "justify">("center");
+  const [textAlign, setTextAlign] = useState<"center" | "left" | "right">("center");
   const [logoScale, setLogoScale] = useState(1.0); // 0.7 ~ 1.4
   const [selectedColorId, setSelectedColorId] = useState("white");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -727,7 +700,6 @@ export default function Home() {
             { id: "left", label: "좌측" },
             { id: "center", label: "가운데" },
             { id: "right", label: "우측" },
-            { id: "justify", label: "양쪽" },
           ] as const).map((a) => (
             <button
               key={a.id}
