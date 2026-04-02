@@ -62,32 +62,32 @@ const TEMPLATE_POOLS = [
   {
     label: "기독교",
     overlayAlpha: 0.52,
-    query: "church,cross,worship,cathedral,stained,glass",
-    locks: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77],
+    query: "church,cross,worship,cathedral",
+    locks: Array.from({length: 50}, (_, i) => i * 4 + 1),
   },
   {
     label: "말씀",
     overlayAlpha: 0.45,
-    query: "bible,light,holy,scripture,candle,prayer",
-    locks: [2,6,10,14,18,22,26,30,34,38,42,46,50,54,58,62,66,70,74,78],
+    query: "bible,candle,prayer,light",
+    locks: Array.from({length: 50}, (_, i) => i * 4 + 2),
   },
   {
     label: "자연",
     overlayAlpha: 0.42,
-    query: "nature,landscape,sky,mountain,forest,river",
-    locks: [3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79],
+    query: "nature,sky,mountain,forest",
+    locks: Array.from({length: 50}, (_, i) => i * 4 + 3),
   },
   {
     label: "감성",
     overlayAlpha: 0.38,
-    query: "sunset,flower,ocean,dawn,field,peaceful",
-    locks: [4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80],
+    query: "sunset,flower,ocean,dawn",
+    locks: Array.from({length: 50}, (_, i) => i * 4 + 4),
   },
 ];
 
 function getPoolUrl(pool: typeof TEMPLATE_POOLS[0], idx: number) {
   const lock = pool.locks[idx % pool.locks.length];
-  return `https://loremflickr.com/1080/1920/${pool.query}/all?lock=${lock}`;
+  return `https://loremflickr.com/1080/1920/${pool.query}?lock=${lock}`;
 }
 
 function getTodayTemplates() {
@@ -384,7 +384,10 @@ export default function Home() {
   }, []);
 
   const handleChangeTemplates = () => {
-    const next = (poolIdx + 1) % TEMPLATE_POOLS[0].locks.length;
+    let next = poolIdx;
+    while (next === poolIdx) {
+      next = Math.floor(Math.random() * TEMPLATE_POOLS[0].locks.length);
+    }
     setPoolIdx(next);
     setSelectedTemplateId(null);
     setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
