@@ -57,35 +57,61 @@ const FONTS = [
   { id: "poor-story",   label: "푸어스토리", family: "'Poor Story', cursive" },
 ];
 
-// 콘셉트별 Unsplash 이미지 풀
-// picsum.photos는 CORS 지원이 돼서 Canvas에서도 잘 작동함
-// seed 번호로 항상 같은 이미지 보장
+// 성경 분위기 테마별 이미지 풀 (loremflickr 키워드 기반)
 const TEMPLATE_POOLS = [
   {
-    label: "경건",
-    overlayAlpha: 0.52,
-    seeds: [10, 37, 83, 152, 217, 334, 456, 571, 683, 742, 819, 903, 67, 189, 423, 558, 677, 781, 862, 991],
+    label: "푸른초장",
+    overlayAlpha: 0.45,
+    query: "green,meadow,field,pastoral",
+    locks: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77],
   },
   {
-    label: "밝음",
-    overlayAlpha: 0.35,
-    seeds: [20, 55, 91, 143, 267, 389, 412, 534, 601, 724, 837, 956, 78, 201, 345, 467, 589, 712, 834, 978],
-  },
-  {
-    label: "따뜻함",
+    label: "새벽빛",
     overlayAlpha: 0.38,
-    seeds: [30, 64, 107, 238, 351, 478, 523, 649, 715, 803, 887, 942, 156, 279, 392, 481, 563, 694, 758, 867],
+    query: "sunrise,dawn,golden,light,sky",
+    locks: [2,6,10,14,18,22,26,30,34,38,42,46,50,54,58,62,66,70,74,78],
   },
   {
-    label: "자연",
+    label: "바다와강",
+    overlayAlpha: 0.45,
+    query: "ocean,sea,river,lake,water",
+    locks: [3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79],
+  },
+  {
+    label: "숲과나무",
+    overlayAlpha: 0.48,
+    query: "forest,trees,sunlight,nature",
+    locks: [4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80],
+  },
+  {
+    label: "하늘구름",
+    overlayAlpha: 0.40,
+    query: "sky,clouds,heaven,blue",
+    locks: [81,85,89,93,97,101,105,109,113,117,121,125,129,133,137,141,145,149,153,157],
+  },
+  {
+    label: "꽃과정원",
+    overlayAlpha: 0.38,
+    query: "flowers,garden,bloom,spring",
+    locks: [82,86,90,94,98,102,106,110,114,118,122,126,130,134,138,142,146,150,154,158],
+  },
+  {
+    label: "산과언덕",
+    overlayAlpha: 0.48,
+    query: "mountain,hills,landscape,valley",
+    locks: [83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159],
+  },
+  {
+    label: "빛과안개",
     overlayAlpha: 0.42,
-    seeds: [40, 73, 119, 254, 373, 491, 547, 662, 738, 825, 911, 967, 168, 293, 417, 536, 648, 773, 891, 934],
+    query: "fog,mist,light,peaceful,morning",
+    locks: [84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160],
   },
 ];
 
 function getPoolUrl(pool: typeof TEMPLATE_POOLS[0], idx: number) {
-  const seed = pool.seeds[idx % pool.seeds.length];
-  return `https://picsum.photos/seed/${seed}/1080/1920`;
+  const lock = pool.locks[idx % pool.locks.length];
+  return `https://loremflickr.com/1080/1920/${pool.query}/all?lock=${lock}`;
 }
 
 function getTodayTemplates() {
@@ -371,7 +397,7 @@ export default function Home() {
   const [templates, setTemplates] = useState(todayTemplates);
 
   useEffect(() => {
-    const random = Math.floor(Math.random() * TEMPLATE_POOLS[0].seeds.length);
+    const random = Math.floor(Math.random() * TEMPLATE_POOLS[0].locks.length);
     setPoolIdx(random);
     setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
       id: i + 1,
@@ -382,7 +408,7 @@ export default function Home() {
   }, []);
 
   const handleChangeTemplates = () => {
-    const next = (poolIdx + 1) % TEMPLATE_POOLS[0].seeds.length;
+    const next = (poolIdx + 1) % TEMPLATE_POOLS[0].locks.length;
     setPoolIdx(next);
     setSelectedTemplateId(null);
     setTemplates(TEMPLATE_POOLS.map((pool, i) => ({
@@ -548,7 +574,7 @@ export default function Home() {
             배경 교체
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-3 mb-6">
           {templates.map((t) => (
             <div key={t.id} className="flex flex-col gap-1" style={{ containerType: "inline-size" }}>
               <CardPreview
