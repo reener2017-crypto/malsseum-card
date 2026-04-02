@@ -60,52 +60,28 @@ const FONTS = [
 // 성경 분위기 테마별 이미지 풀 (loremflickr 키워드 기반)
 const TEMPLATE_POOLS = [
   {
-    label: "푸른초장",
-    overlayAlpha: 0.45,
-    query: "green,meadow,field,pastoral",
+    label: "기독교",
+    overlayAlpha: 0.52,
+    query: "church,cross,worship,cathedral,stained,glass",
     locks: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77],
   },
   {
-    label: "새벽빛",
-    overlayAlpha: 0.38,
-    query: "sunrise,dawn,golden,light,sky",
+    label: "말씀",
+    overlayAlpha: 0.45,
+    query: "bible,light,holy,scripture,candle,prayer",
     locks: [2,6,10,14,18,22,26,30,34,38,42,46,50,54,58,62,66,70,74,78],
   },
   {
-    label: "바다와강",
-    overlayAlpha: 0.45,
-    query: "ocean,sea,river,lake,water",
+    label: "자연",
+    overlayAlpha: 0.42,
+    query: "nature,landscape,sky,mountain,forest,river",
     locks: [3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79],
   },
   {
-    label: "숲과나무",
-    overlayAlpha: 0.48,
-    query: "forest,trees,sunlight,nature",
-    locks: [4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80],
-  },
-  {
-    label: "하늘구름",
-    overlayAlpha: 0.40,
-    query: "sky,clouds,heaven,blue",
-    locks: [81,85,89,93,97,101,105,109,113,117,121,125,129,133,137,141,145,149,153,157],
-  },
-  {
-    label: "꽃과정원",
+    label: "감성",
     overlayAlpha: 0.38,
-    query: "flowers,garden,bloom,spring",
-    locks: [82,86,90,94,98,102,106,110,114,118,122,126,130,134,138,142,146,150,154,158],
-  },
-  {
-    label: "산과언덕",
-    overlayAlpha: 0.48,
-    query: "mountain,hills,landscape,valley",
-    locks: [83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159],
-  },
-  {
-    label: "빛과안개",
-    overlayAlpha: 0.42,
-    query: "fog,mist,light,peaceful,morning",
-    locks: [84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160],
+    query: "sunset,flower,ocean,dawn,field,peaceful",
+    locks: [4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80],
   },
 ];
 
@@ -574,7 +550,7 @@ export default function Home() {
             배경 교체
           </button>
         </div>
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {templates.map((t) => (
             <div key={t.id} className="flex flex-col gap-1" style={{ containerType: "inline-size" }}>
               <CardPreview
