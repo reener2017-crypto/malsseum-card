@@ -434,6 +434,8 @@ export default function Home() {
     } else {
       setVerseIndex((prev) => (prev + 1) % bibleData.length);
     }
+    setCustomText("");
+    setCustomRef("");
   };
   const [templates, setTemplates] = useState(todayTemplates);
 
