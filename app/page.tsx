@@ -508,12 +508,21 @@ export default function Home() {
         {/* 오늘의 말씀 */}
         <div className="relative bg-white rounded-2xl shadow-sm px-6 py-5 text-center mb-6">
           <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">오늘의 말씀</p>
-          <p className="text-gray-800 text-base leading-relaxed font-medium mb-2" style={{ fontFamily: activeFont.family }}>
+          <p className="text-gray-800 text-base leading-relaxed font-medium mb-2" style={{ fontFamily: activeFont.family, whiteSpace: "pre-wrap" }}>
             {activeVerse.text}
           </p>
-          <p className="text-indigo-400 text-xs font-semibold">
+          <p className="text-indigo-400 text-xs font-semibold mb-2">
             {activeVerse.book}{activeVerse.chapter > 0 ? ` ${activeVerse.chapter}:${activeVerse.verse}` : ""}
           </p>
+          <button
+            onClick={() => {
+              setCustomText(activeVerse.text);
+              setCustomRef(activeVerse.chapter > 0 ? `${activeVerse.book} ${activeVerse.chapter}:${activeVerse.verse}` : activeVerse.book);
+            }}
+            className="text-xs text-indigo-400 border border-indigo-200 rounded-lg px-2 py-1 hover:bg-indigo-50 transition-colors"
+          >
+            줄바꿈 편집
+          </button>
           <button
             onClick={handleChangeVerse}
             className="absolute top-4 right-4 text-xs text-indigo-400 border border-indigo-200 rounded-lg px-2 py-1 hover:bg-indigo-50 transition-colors"
