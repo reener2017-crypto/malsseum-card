@@ -159,6 +159,74 @@ function getTodayTemplates() {
   }));
 }
 
+// 부활절 날짜 계산 (Anonymous Gregorian algorithm)
+function getEaster(year: number): Date {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+function getLiturgicalCategory(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const today = new Date(year, month - 1, day);
+
+  const easter = getEaster(year);
+  const diff = (d1: Date, d2: Date) => Math.round((d1.getTime() - d2.getTime()) / 86400000);
+  const daysFromEaster = diff(today, easter);
+
+  // 부활절 기준 절기 계산
+  if (daysFromEaster >= -46 && daysFromEaster < -7) return "lent";      // 사순절 (46일 전 ~ 8일 전)
+  if (daysFromEaster >= -7 && daysFromEaster < 0) return "passion";     // 고난주간 (7일 전 ~ 전날)
+  if (daysFromEaster >= 0 && daysFromEaster <= 7) return "easter";      // 부활절 (당일 ~ 7일 후)
+  if (daysFromEaster === 49) return "pentecost";                         // 성령강림절 (49일 후)
+  if (daysFromEaster > 44 && daysFromEaster < 54) return "pentecost";   // 성령강림절 전후
+
+  // 추수감사절: 11월 셋째 주일
+  if (month === 11) {
+    let thirdSunday = 1;
+    let sunCount = 0;
+    for (let d = 1; d <= 30; d++) {
+      if (new Date(year, 10, d).getDay() === 0) {
+        sunCount++;
+        if (sunCount === 3) { thirdSunday = d; break; }
+      }
+    }
+    if (day >= thirdSunday - 3 && day <= thirdSunday + 3) return "thanksgiving";
+  }
+
+  // 대강절: 크리스마스 4번째 이전 일요일부터
+  const christmas = new Date(year, 11, 25);
+  const adventStart = new Date(christmas);
+  adventStart.setDate(25 - ((christmas.getDay() + 21) % 7 + 1));
+  if (today >= adventStart && today < christmas) return "advent";
+
+  // 성탄절: 12/25 ~ 1/6
+  if ((month === 12 && day >= 25) || (month === 1 && day <= 6)) return "christmas";
+
+  // 신년: 1/1 ~ 1/14
+  if (month === 1 && day <= 14) return "newyear";
+
+  // 그 외: 날짜 기반으로 일반 주제 순환
+  const generalCategories = ["love", "faith", "peace", "hope", "strength", "wisdom", "comfort", "gospel"];
+  const weekOfYear = Math.floor(diff(today, new Date(year, 0, 1)) / 7);
+  return generalCategories[weekOfYear % generalCategories.length];
+}
+
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   // 1단계: 쉼표/마침표 기준으로 먼저 청크 분리
   const chunks = text.split(/(?<=[,，。])\s*/).map((s) => s.trim()).filter(Boolean);
@@ -393,6 +461,15 @@ export default function Home() {
     const now = new Date();
     const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
     setVerseIndex(dayOfYear % bibleData.length);
+
+    // 절기 자동 설정
+    const autoCategory = getLiturgicalCategory();
+    setCategoryId(autoCategory);
+    const catVerses = (bibleData as Verse[]).filter((v) => v.tags?.includes(autoCategory));
+    if (catVerses.length > 0) {
+      const idx = (bibleData as Verse[]).findIndex((v) => v.id === catVerses[dayOfYear % catVerses.length].id);
+      if (idx !== -1) setVerseIndex(idx);
+    }
   }, []);
 
   // 현재 카테고리에 해당하는 구절 ID 목록 (태그 기반)
