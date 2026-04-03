@@ -9,27 +9,28 @@ interface Verse {
   chapter: number;
   verse: number;
   text: string;
+  tags?: string[];
 }
 
 const CATEGORIES = [
   // 절기
-  { id: "lent",         label: "사순절",     ids: [10, 11, 13, 17, 7] },
-  { id: "passion",      label: "고난주간",   ids: [17, 19, 35, 7] },
-  { id: "easter",       label: "부활절",     ids: [19, 21, 32, 22] },
-  { id: "pentecost",    label: "성령강림절", ids: [27, 28, 23, 30] },
-  { id: "thanksgiving", label: "추수감사절", ids: [28, 29, 23, 16] },
-  { id: "advent",       label: "대강절",     ids: [12, 14, 35, 19] },
-  { id: "christmas",    label: "성탄절",     ids: [1, 19, 3, 15] },
-  { id: "newyear",      label: "신년",       ids: [14, 10, 23, 30] },
+  { id: "lent",         label: "사순절" },
+  { id: "passion",      label: "고난주간" },
+  { id: "easter",       label: "부활절" },
+  { id: "pentecost",    label: "성령강림절" },
+  { id: "thanksgiving", label: "추수감사절" },
+  { id: "advent",       label: "대강절" },
+  { id: "christmas",    label: "성탄절" },
+  { id: "newyear",      label: "신년" },
   // 주제
-  { id: "love",         label: "사랑",       ids: [25, 26, 34, 19] },
-  { id: "gospel",       label: "복음",       ids: [19, 21, 18, 31] },
-  { id: "faith",        label: "믿음",       ids: [32, 30, 12, 5] },
-  { id: "peace",        label: "평안",       ids: [29, 14, 7, 8] },
-  { id: "hope",         label: "소망",       ids: [14, 23, 32, 12] },
-  { id: "strength",     label: "힘과 용기",  ids: [30, 12, 13, 8] },
-  { id: "wisdom",       label: "지혜",       ids: [10, 11, 33, 9] },
-  { id: "comfort",      label: "위로",       ids: [17, 7, 35, 29] },
+  { id: "love",         label: "사랑" },
+  { id: "gospel",       label: "복음" },
+  { id: "faith",        label: "믿음" },
+  { id: "peace",        label: "평안" },
+  { id: "hope",         label: "소망" },
+  { id: "strength",     label: "힘과 용기" },
+  { id: "wisdom",       label: "지혜" },
+  { id: "comfort",      label: "위로" },
 ];
 
 const TEXT_COLORS = [
@@ -394,14 +395,11 @@ export default function Home() {
     setVerseIndex(dayOfYear % bibleData.length);
   }, []);
 
-  const currentCatIds = CATEGORIES.find((c) => c.id === categoryId)?.ids ?? null;
-
-  // 카테고리 내에서 아직 안 본 구절 ID 반환, 다 봤으면 초기화
-  const getNextUnseenId = (catIds: number[], currentSeenIds: number[]): number => {
-    const unseen = catIds.filter((id) => !currentSeenIds.includes(id));
-    if (unseen.length === 0) return catIds[0]; // 다 봤으면 첫번째로
-    return unseen[0];
-  };
+  // 현재 카테고리에 해당하는 구절 ID 목록 (태그 기반)
+  const currentCatVerses = (bibleData as Verse[]).filter((v) =>
+    v.tags?.includes(categoryId)
+  );
+  const currentCatIds = currentCatVerses.length > 0 ? currentCatVerses.map((v) => v.id) : null;
 
   const markAsSeen = (verseId: number) => {
     setSeenIds((prev) => {
@@ -414,10 +412,13 @@ export default function Home() {
   const handleSelectCategory = (catId: string) => {
     setCategoryId(catId);
     setCatVerseIdx(0);
-    const cat = CATEGORIES.find((c) => c.id === catId);
-    if (cat?.ids) {
-      const nextId = getNextUnseenId(cat.ids, seenIds);
-      const idx = (bibleData as Verse[]).findIndex((v) => v.id === nextId);
+    const catVerses = (bibleData as Verse[]).filter((v) =>
+      v.tags?.includes(catId)
+    );
+    if (catVerses.length > 0) {
+      const unseen = catVerses.filter((v) => !seenIds.includes(v.id));
+      const pool = unseen.length > 0 ? unseen : catVerses;
+      const idx = (bibleData as Verse[]).findIndex((v) => v.id === pool[0].id);
       if (idx !== -1) setVerseIndex(idx);
     }
   };
@@ -431,7 +432,6 @@ export default function Home() {
       const idx = (bibleData as Verse[]).findIndex((v) => v.id === pool[next]);
       if (idx !== -1) setVerseIndex(idx);
       if (unseenIds.length === 0) {
-        // 다 봤으면 seenIds에서 이 카테고리 구절 초기화
         setSeenIds((prev) => {
           const updated = prev.filter((id) => !currentCatIds.includes(id));
           localStorage.setItem("seenVerseIds", JSON.stringify(updated));
