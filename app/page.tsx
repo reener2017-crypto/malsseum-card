@@ -900,8 +900,7 @@ export default function Home() {
 
         {/* 구독 섹션 */}
         <div className="mt-8 pt-8 border-t border-indigo-100">
-          <p className="text-sm text-gray-600 text-center mb-1">사이트는 무료입니다.</p>
-          <p className="text-sm text-gray-600 text-center mb-5">하지만 이 사역이 계속되도록 후원으로 함께해주세요 🙏</p>
+          <p className="text-sm text-gray-600 text-center mb-5">앞으로 더 다양한 사역의 소식을 듣고 싶으시다면 뉴스레터에 가입해주세요</p>
           <link rel="stylesheet" href="https://resource.stibee.com/subscribe/stb_subscribe_form_style.css" />
           <div id="stb_subscribe">
             <form
