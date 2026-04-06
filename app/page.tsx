@@ -489,7 +489,7 @@ function CardPreview({
 const todayTemplates = getTodayTemplates();
 
 export default function Home() {
-  const [categoryId, setCategoryId] = useState("lent");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [catVerseIdx, setCatVerseIdx] = useState(0);
   const [seenIds, setSeenIds] = useState<number[]>([]);
   const [verseIndex, setVerseIndex] = useState(0);
@@ -515,9 +515,9 @@ export default function Home() {
   }, []);
 
   // 현재 카테고리에 해당하는 구절 ID 목록 (태그 기반)
-  const currentCatVerses = (bibleData as Verse[]).filter((v) =>
-    v.tags?.includes(categoryId)
-  );
+  const currentCatVerses = categoryId
+    ? (bibleData as Verse[]).filter((v) => v.tags?.includes(categoryId))
+    : [];
   const currentCatIds = currentCatVerses.length > 0 ? currentCatVerses.map((v) => v.id) : null;
 
   const markAsSeen = (verseId: number) => {
@@ -529,6 +529,10 @@ export default function Home() {
   };
 
   const handleSelectCategory = (catId: string) => {
+    if (categoryId === catId) {
+      setCategoryId(null);
+      return;
+    }
     setCategoryId(catId);
     setCatVerseIdx(0);
     const catVerses = (bibleData as Verse[]).filter((v) =>
